@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">streamlit </span><span class="s0">as </span><span class="s1">st</span>
+<span class="s0">import </span><span class="s1">pandas </span><span class="s0">as </span><span class="s1">pd</span>
+<span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+<span class="s0">import </span><span class="s1">seaborn </span><span class="s0">as </span><span class="s1">sns</span>
+<span class="s0">import </span><span class="s1">altair </span><span class="s0">as </span><span class="s1">alt</span>
+<span class="s0">import </span><span class="s1">matplotlib.pyplot </span><span class="s0">as </span><span class="s1">plt</span>
+<span class="s0">import </span><span class="s1">matplotlib </span><span class="s0">as </span><span class="s1">mpl</span>
+<span class="s0">with </span><span class="s1">st.echo(code_location=</span><span class="s2">'below'</span><span class="s1">):</span>
+    <span class="s0">def </span><span class="s1">print_hi(name):</span>
+        <span class="s1">st.write(</span><span class="s2">f&quot;## Не знаешь что послушать, </span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">?&quot;</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">__name__ == </span><span class="s2">&quot;__main__&quot;</span><span class="s1">:</span>
+        <span class="s1">name = st.text_input(</span><span class="s2">&quot;Введите имя &quot;</span><span class="s0">, </span><span class="s1">key= </span><span class="s2">&quot;text&quot;</span><span class="s0">, </span><span class="s1">value= </span><span class="s2">&quot;anonymous&quot;</span><span class="s1">)</span>
+        <span class="s1">print_hi(name)</span>
+    <span class="s0">def </span><span class="s1">get_data():</span>
+        <span class="s1">data_url = (</span>
+            <span class="s2">&quot;https://github.com/anastasions/Spotify/raw/main/spoty.csv&quot;</span>
+        <span class="s1">)</span>
+        <span class="s0">return </span><span class="s1">(</span>
+            <span class="s1">pd.read_csv(data_url).dropna(subset=[</span><span class="s2">&quot;year released&quot;</span><span class="s1">])</span>
+            <span class="s1">.assign(</span>
+                <span class="s1">yearreleased =</span><span class="s0">lambda </span><span class="s1">x: pd.to_datetime(</span>
+                    <span class="s1">x[</span><span class="s2">&quot;year released&quot;</span><span class="s1">]</span><span class="s0">, </span><span class="s1">format=</span><span class="s2">&quot;%Y&quot;</span>
+                <span class="s1">)</span>
+            <span class="s1">)</span>
+        <span class="s1">)</span>
+
+    <span class="s1">ddata=get_data()</span>
+    <span class="s1">song = st.text_input(</span><span class="s2">&quot;Напишите название вашей любимой иностранной песни&quot;</span><span class="s0">, </span><span class="s1">key=</span><span class="s2">&quot;text&quot;</span><span class="s0">, </span><span class="s1">value=</span><span class="s2">&quot;&quot;</span><span class="s1">)</span>
+    <span class="s0">def </span><span class="s1">yoursong():</span>
+        <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">get_data()[</span><span class="s2">&quot;title&quot;</span><span class="s1">]:</span>
+            <span class="s0">if </span><span class="s1">song == </span><span class="s2">&quot;&quot;</span><span class="s1">:</span>
+                <span class="s0">return </span><span class="s1">(</span><span class="s2">f&quot;## &quot;</span><span class="s1">)</span>
+            <span class="s0">if </span><span class="s1">i== song:</span>
+                <span class="s1">st.balloons()</span>
+                <span class="s0">return </span><span class="s1">(</span><span class="s2">f&quot;## Ваша песня была в топе Spotify!!!&quot;</span><span class="s1">)</span>
+        <span class="s0">return </span><span class="s1">(</span><span class="s2">f&quot;## К сожалению, ваша любимая песня не была в топе ближайшие 10 лет :( &quot;</span><span class="s1">)</span>
+    <span class="s1">st.write(yoursong())</span>
+    <span class="s1">st.write(</span><span class="s2">f&quot;## Вы можете найти популярные песни прошлых лет и поностальгировать!&quot;</span><span class="s1">)</span>
+    <span class="s0">def </span><span class="s1">song_release():</span>
+        <span class="s1">year = st.sidebar.slider(</span><span class="s2">&quot; Выберите год, в котором хотите узнать 3 популярные песни&quot;</span><span class="s0">, </span><span class="s3">2010</span><span class="s0">, </span><span class="s3">2019</span><span class="s1">)</span>
+        <span class="s1">df_filter = ddata[</span><span class="s2">'year released'</span><span class="s1">].isin([year])</span>
+        <span class="s1">your= ddata[df_filter][</span><span class="s2">&quot;title&quot;</span><span class="s1">].head(</span><span class="s3">3</span><span class="s1">)</span>
+        <span class="s0">return </span><span class="s1">(your)</span>
+    <span class="s1">st.sidebar.write(song_release())</span>
+    <span class="s1">st.sidebar.write(</span><span class="s2">&quot;Надеюсь, хоть что-то из списка приглянулось тебе!&quot;</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">which_genre():</span>
+        <span class="s1">genres = ddata.groupby([</span><span class="s2">'top genre'</span><span class="s1">]).size().reset_index(name=</span><span class="s2">'count'</span><span class="s1">)</span>
+        <span class="s0">return </span><span class="s1">(genres)</span>
+
+    <span class="s1">ch =which_genre()</span>
+    <span class="s1">ch= ch.sort_values(by= </span><span class="s2">'count'</span><span class="s0">, </span><span class="s1">ascending=</span><span class="s0">False</span><span class="s1">).iloc[:</span><span class="s3">10</span><span class="s1">]</span>
+    <span class="s1">vals=ch[</span><span class="s2">'count'</span><span class="s1">]</span>
+    <span class="s1">labels = ch[</span><span class="s2">'top genre'</span><span class="s1">]</span>
+    <span class="s1">fig</span><span class="s0">, </span><span class="s1">ax = plt.subplots()</span>
+    <span class="s1">ax.pie(vals</span><span class="s0">, </span><span class="s1">labels=labels</span><span class="s0">, </span><span class="s1">wedgeprops=dict(width=</span><span class="s3">0.5</span><span class="s1">))</span>
+
+    <span class="s0">if </span><span class="s1">st.checkbox(</span><span class="s2">'Здесь вы можете посмотреть популярные песни по жанрам'</span><span class="s1">):</span>
+        <span class="s1">gen = st.selectbox(</span>
+            <span class="s2">&quot;Выберите жанр&quot;</span><span class="s0">,</span>
+            <span class="s1">ddata[</span><span class="s2">&quot;top genre&quot;</span><span class="s1">].value_counts().iloc[:</span><span class="s3">30</span><span class="s1">].index)</span>
+
+        <span class="s1">df_selection = ddata[</span><span class="s0">lambda </span><span class="s1">x: x[</span><span class="s2">&quot;top genre&quot;</span><span class="s1">] == gen]</span>
+        <span class="s1">df_selection</span>
+
+    <span class="s1">data_names = ch[</span><span class="s2">'top genre'</span><span class="s1">].tolist()</span>
+    <span class="s1">data_values = ch[</span><span class="s2">'count'</span><span class="s1">].tolist()</span>
+    <span class="s4">### FROM: https://eax.me/python-matplotlib/</span>
+    <span class="s1">dpi = </span><span class="s3">80</span>
+    <span class="s1">mpl.rcParams.update({</span><span class="s2">'font.size'</span><span class="s1">: </span><span class="s3">9</span><span class="s1">})</span>
+    <span class="s1">xs = range(len(data_names))</span>
+    <span class="s1">ax = plt.axes()</span>
+    <span class="s1">ax.xaxis.grid(</span><span class="s0">True, </span><span class="s1">zorder=</span><span class="s3">1</span><span class="s1">)</span>
+    <span class="s4">###END FROM</span>
+    <span class="s1">choice=st.selectbox(</span><span class="s2">&quot;Хочешь посмотреть количество песен по жанрам&quot;</span>
+                        <span class="s2">&quot; на разных графиках? Жмякай ниже)&quot;</span><span class="s0">,</span>
+                 <span class="s1">( </span><span class="s2">''</span><span class="s0">,</span><span class="s2">'Диаграмма'</span><span class="s0">,</span><span class="s2">&quot;Гистограмма&quot;</span><span class="s0">, </span><span class="s2">&quot; Диаграмма рассеивания&quot;</span><span class="s1">))</span>
+    <span class="s0">if </span><span class="s1">choice == </span><span class="s2">'Диаграмма'</span><span class="s1">:</span>
+            <span class="s1">plt.title(</span><span class="s2">'Распределение рейтингов по жанрам (%)'</span><span class="s1">)</span>
+            <span class="s4">### FROM: https://eax.me/python-matplotlib/</span>
+            <span class="s1">fig = plt.figure(dpi=dpi</span><span class="s0">, </span><span class="s1">figsize=(</span><span class="s3">512 </span><span class="s1">/ dpi</span><span class="s0">, </span><span class="s3">384 </span><span class="s1">/ dpi))</span>
+            <span class="s1">plt.pie(</span>
+                <span class="s1">data_values</span><span class="s0">, </span><span class="s1">autopct=</span><span class="s2">'%.1f'</span><span class="s0">, </span><span class="s1">radius=</span><span class="s3">1.1</span><span class="s0">,</span>
+                    <span class="s1">explode=[</span><span class="s3">0.15</span><span class="s1">] + [</span><span class="s3">0 </span><span class="s0">for </span><span class="s1">_ </span><span class="s0">in </span><span class="s1">range(len(data_names) - </span><span class="s3">1</span><span class="s1">)])</span>
+            <span class="s1">plt.legend(</span>
+                <span class="s1">bbox_to_anchor=(-</span><span class="s3">0.16</span><span class="s0">, </span><span class="s3">0.45</span><span class="s0">, </span><span class="s3">0.25</span><span class="s0">, </span><span class="s3">0.25</span><span class="s1">)</span><span class="s0">,</span>
+                    <span class="s1">loc=</span><span class="s2">'lower left'</span><span class="s0">, </span><span class="s1">labels=data_names)</span>
+            <span class="s4">###END FROM</span>
+            <span class="s1">st.pyplot(fig)</span>
+    <span class="s0">if </span><span class="s1">choice == </span><span class="s2">&quot;Гистограмма&quot;</span><span class="s1">:</span>
+        <span class="s1">plt.title(</span><span class="s2">'Распределение рейтингов по жанрам (кол-во)'</span><span class="s1">)</span>
+        <span class="s4">###FROM: https://eax.me/python-matplotlib/</span>
+        <span class="s1">bar = plt.figure(dpi=dpi</span><span class="s0">, </span><span class="s1">figsize=(</span><span class="s3">512 </span><span class="s1">/ dpi</span><span class="s0">, </span><span class="s3">384 </span><span class="s1">/ dpi))</span>
+        <span class="s1">plt.bar([x + </span><span class="s3">0.05 </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">xs]</span><span class="s0">, </span><span class="s1">[d * </span><span class="s3">0.9 </span><span class="s0">for </span><span class="s1">d </span><span class="s0">in </span><span class="s1">data_values]</span><span class="s0">,</span>
+                <span class="s1">width=</span><span class="s3">0.2</span><span class="s0">, </span><span class="s1">color=</span><span class="s2">'purple'</span><span class="s0">, </span><span class="s1">alpha=</span><span class="s3">0.7</span><span class="s0">, </span><span class="s1">label=</span><span class="s2">'Genre'</span><span class="s0">,</span>
+                    <span class="s1">zorder= </span><span class="s3">2</span><span class="s1">)</span>
+        <span class="s1">plt.xticks(xs</span><span class="s0">, </span><span class="s1">data_names)</span>
+        <span class="s1">bar.autofmt_xdate(rotation = </span><span class="s3">25</span><span class="s1">)</span>
+        <span class="s1">plt.legend(loc=</span><span class="s2">'upper right'</span><span class="s1">)</span>
+        <span class="s4">###END FROM</span>
+        <span class="s1">st.pyplot(bar)</span>
+    <span class="s0">if </span><span class="s1">choice ==</span><span class="s2">&quot; Диаграмма рассеивания&quot;</span><span class="s1">:</span>
+        <span class="s1">chart = alt.Chart(ch).mark_point().encode(</span>
+            <span class="s1">x=</span><span class="s2">'top genre'</span><span class="s0">,</span>
+            <span class="s1">y=</span><span class="s2">'count'</span><span class="s0">,</span>
+            <span class="s1">color=</span><span class="s2">'count:N'</span><span class="s0">,</span>
+            <span class="s1">size=alt.value(</span><span class="s3">350</span><span class="s1">)</span>
+        <span class="s1">).properties(</span>
+            <span class="s1">height=</span><span class="s3">500</span><span class="s0">, </span><span class="s1">width=</span><span class="s3">600</span>
+            <span class="s1">)</span>
+        <span class="s1">st.altair_chart(</span>
+            <span class="s1">(chart</span>
+                    <span class="s1">+ chart.transform_loess(</span><span class="s2">&quot;top genre&quot;</span><span class="s0">, </span><span class="s2">&quot;count&quot;</span><span class="s1">).mark_line()</span>
+            <span class="s1">).interactive())</span>
+    <span class="s1">st.write(</span><span class="s2">&quot;Исполнитель тоже очень важен в выборе музыки, может быть здесь ты найдешь кого-то нового?)&quot;</span><span class="s1">)</span>
+    <span class="s0">def </span><span class="s1">which_artist():</span>
+        <span class="s1">arts = ddata.groupby([</span><span class="s2">'artist'</span><span class="s0">, </span><span class="s2">'year released'</span><span class="s1">]).size().reset_index(name=</span><span class="s2">'countart'</span><span class="s1">)</span>
+        <span class="s0">return </span><span class="s1">arts</span>
+
+    <span class="s1">ar=which_artist().sort_values(by=</span><span class="s2">'countart'</span><span class="s0">, </span><span class="s1">ascending= </span><span class="s0">False</span><span class="s1">)</span>
+    <span class="s1">art=st.selectbox(</span><span class="s2">&quot;Выберите артиста, чтобы посмотреть сколько раз он был в топе&quot;</span><span class="s0">, </span><span class="s1">ar[</span><span class="s2">'artist'</span><span class="s1">].unique())</span>
+    <span class="s1">df_filter1= ar[</span><span class="s2">'artist'</span><span class="s1">].isin([art])</span>
+    <span class="s1">arr= ar[df_filter1].sort_values(by=</span><span class="s2">&quot;year released&quot;</span><span class="s0">, </span><span class="s1">ascending= </span><span class="s0">False</span><span class="s1">)</span>
+    <span class="s1">artists= arr[[</span><span class="s2">&quot;year released&quot;</span><span class="s0">, </span><span class="s2">&quot;countart&quot;</span><span class="s1">]]</span>
+    <span class="s4">###FROM : https://seaborn-pydata-org.translate.goog/examples/scatterplot_sizes.html?_x_tr_sl=en&amp;_x_tr_tl=ru&amp;_x_tr_hl=ru&amp;_x_tr_pto=sc</span>
+    <span class="s1">sns.set_theme(style=</span><span class="s2">&quot;whitegrid&quot;</span><span class="s1">)</span>
+    <span class="s1">cmap = sns.cubehelix_palette( as_cmap=</span><span class="s0">True</span><span class="s1">)</span>
+    <span class="s1">g = sns.relplot(</span>
+        <span class="s1">data=artists</span><span class="s0">,</span>
+        <span class="s1">x=</span><span class="s2">&quot;year released&quot;</span><span class="s0">, </span><span class="s1">y=</span><span class="s2">&quot;countart&quot;</span><span class="s0">,</span>
+        <span class="s1">hue=</span><span class="s2">&quot;year released&quot;</span><span class="s0">, </span><span class="s1">size=</span><span class="s2">&quot;countart&quot;</span><span class="s0">,</span>
+        <span class="s1">palette=cmap</span><span class="s0">, </span><span class="s1">sizes=(</span><span class="s3">100</span><span class="s0">, </span><span class="s3">200</span><span class="s1">)</span><span class="s0">,</span>
+    <span class="s1">)</span>
+    <span class="s1">g.set(xscale=</span><span class="s2">&quot;linear&quot;</span><span class="s0">, </span><span class="s1">yscale=</span><span class="s2">&quot;linear&quot;</span><span class="s1">)</span>
+    <span class="s1">g.ax.xaxis.grid(</span><span class="s0">True, </span><span class="s2">&quot;minor&quot;</span><span class="s0">, </span><span class="s1">linewidth=</span><span class="s3">.25</span><span class="s1">)</span>
+    <span class="s1">g.ax.yaxis.grid(</span><span class="s0">True, </span><span class="s2">&quot;minor&quot;</span><span class="s0">, </span><span class="s1">linewidth=</span><span class="s3">.25</span><span class="s1">)</span>
+    <span class="s1">g.despine(left=</span><span class="s0">True, </span><span class="s1">bottom=</span><span class="s0">True</span><span class="s1">)</span>
+    <span class="s4">###END FROM</span>
+    <span class="s1">plt.xticks(rotation=</span><span class="s3">45</span><span class="s1">)</span>
+    <span class="s1">st.pyplot(g)</span>
+    <span class="s1">st.write(</span><span class="s2">&quot;Нашёл понравившуюся песню?&quot;</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">st.button(</span><span class="s2">&quot;Да!&quot;</span><span class="s1">):</span>
+        <span class="s1">st.write(</span><span class="s2">&quot;Ура!&quot;</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">st.button(</span><span class="s2">&quot;Нет :(&quot;</span><span class="s1">):</span>
+        <span class="s1">st.write(</span><span class="s2">&quot;Очень жаль, попробуй еще потыкать(&quot;</span><span class="s1">)</span></pre>
+</body>
+</html>
